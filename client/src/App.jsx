@@ -7,7 +7,7 @@ import { removeBackground } from '@imgly/background-removal';
 import { compressAndResizeImage } from './utils/imageOptimizer';
 
 // Icons
-import { Search, Plus, Type, Image as ImageIcon, Sparkles, Box, Smartphone, Monitor, Square, Sun, Zap, Film, Cloud, Aperture, X, Palette, Wand2, Trash2, Download, Bold, Image, Frame } from 'lucide-react';
+import { Search, Plus, Type, Image as ImageIcon, Sparkles, Box, Smartphone, Monitor, Square, Sun, Zap, Film, Cloud, Aperture, X, Palette, Wand2, Trash2, Download, Bold, Frame } from 'lucide-react';
 
 const aspectRatios = [
     { id: '16:9', label: '16:9', width: 16, height: 9, icon: <Monitor className="w-4 h-4" /> },

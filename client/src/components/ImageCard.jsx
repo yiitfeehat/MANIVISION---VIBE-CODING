@@ -17,7 +17,7 @@ const ImageCard = ({ image, activeFilter, onClick, onRemove, onUpdateImage, onBr
     if (isProcessing) return;
     
     setIsProcessing(true);
-    console.log("Processing BG Removal for:", image.title);
+    // console.log("Processing BG Removal for:", image.title);
 
     try {
       const proxyUrl = `/api/proxy-image?url=${encodeURIComponent(image.url)}`;

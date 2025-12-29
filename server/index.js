@@ -7,7 +7,7 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 // Middleware
-app.use(cors()); // Allow all origins for Vercel
+app.use(cors());
 app.use(express.json());
 
 // Router
@@ -75,13 +75,13 @@ router.post('/search', async (req, res) => {
   }
 });
 
-// Mount Router
+// Mount Router at /api
 app.use('/api', router);
 
-// Export for Vercel
+// Export for tests/Vercel (if needed)
 module.exports = app;
 
-// Local Development Support
+// Local Development Listener
 if (require.main === module) {
   app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
