@@ -50,3 +50,68 @@
 body {
   @apply bg-neutral-900 text-white font-sans;
 }
+
+/* ============================================
+   MOBILE UX: Larger Touch Targets for Moveable
+   ============================================ */
+
+/* Default: Make handles slightly larger */
+.moveable-control {
+  width: 16px !important;
+  height: 16px !important;
+  margin-left: -8px !important;
+  margin-top: -8px !important;
+  background: white !important;
+  border: 2px solid #333 !important;
+  border-radius: 50% !important;
+}
+
+/* Mobile: Extra large touch targets (44px minimum per Apple HIG) */
+@media (max-width: 768px) {
+  .moveable-control {
+    width: 44px !important;
+    height: 44px !important;
+    margin-left: -22px !important;
+    margin-top: -22px !important;
+    background: rgba(255, 255, 255, 0.9) !important;
+    border: 3px solid rgba(0, 0, 0, 0.3) !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3) !important;
+  }
+
+  /* Corner handles: Position outside element bounds */
+  .moveable-nw {
+    transform: translate(-8px, -8px) !important;
+  }
+
+  .moveable-ne {
+    transform: translate(8px, -8px) !important;
+  }
+
+  .moveable-sw {
+    transform: translate(-8px, 8px) !important;
+  }
+
+  .moveable-se {
+    transform: translate(8px, 8px) !important;
+  }
+
+  /* Rotation handle: Make it prominent */
+  .moveable-rotation {
+    width: 36px !important;
+    height: 36px !important;
+    margin-left: -18px !important;
+    top: -60px !important;
+  }
+
+  /* Line (edge) controls for dragging sides */
+  .moveable-line {
+    height: 24px !important;
+  }
+}
+
+/* Prevent text selection during drag on mobile */
+.target-common {
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+}
