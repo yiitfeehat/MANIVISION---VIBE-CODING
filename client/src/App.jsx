@@ -400,7 +400,7 @@ function App() {
                    {/* IMAGE TOOLS */}
                    {selection.type === 'image' && (
                        <>
-                           <Image className="w-4 h-4 text-zinc-500 mr-2" />
+                           <ImageIcon className="w-4 h-4 text-zinc-500 mr-2" />
                            <div className="h-6 w-[1px] bg-white/10 mx-1" />
                            
                            <button 

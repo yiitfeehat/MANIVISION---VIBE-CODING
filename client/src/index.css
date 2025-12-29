@@ -79,20 +79,11 @@ body {
   }
 
   /* Corner handles: Position outside element bounds */
-  .moveable-nw {
-    transform: translate(-8px, -8px) !important;
-  }
-
-  .moveable-ne {
-    transform: translate(8px, -8px) !important;
-  }
-
-  .moveable-sw {
-    transform: translate(-8px, 8px) !important;
-  }
-
+  .moveable-nw,
+  .moveable-ne,
+  .moveable-sw,
   .moveable-se {
-    transform: translate(8px, 8px) !important;
+    /* No transform overrides! Let the library handle positioning */
   }
 
   /* Rotation handle: Make it prominent */
