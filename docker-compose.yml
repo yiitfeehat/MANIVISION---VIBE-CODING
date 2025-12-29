@@ -1,0 +1,37 @@
+version: '3.8'
+
+services:
+  server:
+    build:
+      context: ./server
+    command: npm run dev
+    ports:
+      - "3000:3000"
+    environment:
+      - PORT=3000
+    volumes:
+      - ./server:/app
+      - /app/node_modules # Anonymous volume to use container's node_modules
+    networks:
+      - vision-network
+
+  client:
+    build:
+      context: ./client
+      target: dev # Important: Target the 'dev' stage (Node), not 'prod' (Nginx)
+    command: npm run dev -- --host # Run Vite dev server
+    ports:
+      - "5173:5173" # Expose Vite default port
+    depends_on:
+      - server
+    volumes:
+      - ./client:/app
+      - /app/node_modules # Anonymous volume for client deps
+    environment:
+      - VITE_API_URL=http://localhost:3000
+    networks:
+      - vision-network
+
+networks:
+  vision-network:
+    driver: bridge
