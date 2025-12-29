@@ -6,15 +6,17 @@ const axios = require('axios');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-app.use(cors());
+// Middleware
+app.use(cors()); // Allow all origins for Vercel
 app.use(express.json());
 
-// Image Proxy Endpoint to bypass hotlink protection
-app.get('/api/proxy-image', async (req, res) => {
+// Router
+const router = express.Router();
+
+// Proxy Endpoint
+router.get('/proxy-image', async (req, res) => {
   const { url } = req.query;
-  if (!url) {
-    return res.status(400).send('URL is required');
-  }
+  if (!url) return res.status(400).send('URL is required');
 
   try {
     const response = await axios({
@@ -32,7 +34,6 @@ app.get('/api/proxy-image', async (req, res) => {
     res.send(response.data);
   } catch (error) {
     if (error.response) {
-      // Forward upstream status code (e.g., 404, 403)
       res.status(error.response.status).send(error.response.statusText);
     } else {
       console.error('Proxy error:', error.message);
@@ -41,38 +42,30 @@ app.get('/api/proxy-image', async (req, res) => {
   }
 });
 
-// Search API
-app.post('/api/search', async (req, res) => {
+// Search Endpoint
+router.post('/search', async (req, res) => {
   try {
     const { query } = req.body;
-    if (!query) {
-      return res.status(400).json({ error: 'Query is required' });
-    }
+    if (!query) return res.status(400).json({ error: 'Query is required' });
 
     const options = {
       page: 0,
-      safe: false, // Allow broad search, filter in frontend if needed
-      additional_params: {
-        // Enforce large images if possible, or leave default
-      }
+      safe: false,
+      additional_params: {}
     };
 
     const images = await google.image(query, options);
 
-    // googlethis returns an array of objects. We want to return a simplified list.
-    // Structure: [ { url, width, height, origin: { title } }, ... ]
-
-    // Filter for valid URLs and map
     const results = images
       .filter(img => img.url && img.url.startsWith('http'))
       .map(img => ({
         url: img.url,
-        thumbnail: img.url, // googlethis might provide a separate preview, but often main url is fine for MVP
+        thumbnail: img.url,
         title: img.origin?.title || query,
         width: img.width,
         height: img.height
       }))
-      .slice(0, 20); // Limit to 20 images
+      .slice(0, 20);
 
     res.json(results);
 
@@ -82,9 +75,13 @@ app.post('/api/search', async (req, res) => {
   }
 });
 
-// Export for Vercel Serverless
+// Mount Router
+app.use('/api', router);
+
+// Export for Vercel
 module.exports = app;
 
+// Local Development Support
 if (require.main === module) {
   app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
