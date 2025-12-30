@@ -67,36 +67,55 @@ body {
 }
 
 /* Mobile: Extra large touch targets (44px minimum per Apple HIG) */
+/* Mobile: Extra large touch targets (Fat Finger Friendly) */
 @media (max-width: 768px) {
   .moveable-control {
-    width: 44px !important;
-    height: 44px !important;
-    margin-left: -22px !important;
-    margin-top: -22px !important;
-    background: rgba(255, 255, 255, 0.9) !important;
-    border: 3px solid rgba(0, 0, 0, 0.3) !important;
+    /* Visual Size: Readable but not huge */
+    width: 20px !important;
+    height: 20px !important;
+    margin-left: -10px !important;
+    /* Center 20px */
+    margin-top: -10px !important;
+    background: white !important;
+    border: 2px solid #333 !important;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3) !important;
+    z-index: 50 !important;
   }
 
-  /* Corner handles: Position outside element bounds */
-  .moveable-nw,
-  .moveable-ne,
-  .moveable-sw,
-  .moveable-se {
-    /* No transform overrides! Let the library handle positioning */
+  /* The Invisible Touch Expansion (44px+) */
+  .moveable-control::after {
+    content: '';
+    position: absolute;
+    top: -16px;
+    left: -16px;
+    right: -16px;
+    bottom: -16px;
+    background: transparent;
+    z-index: 49;
   }
 
-  /* Rotation handle: Make it prominent */
+  /* Rotation handle adjustments */
   .moveable-rotation {
-    width: 36px !important;
-    height: 36px !important;
-    margin-left: -18px !important;
-    top: -60px !important;
+    width: 24px !important;
+    height: 24px !important;
+    margin-left: -12px !important;
+    margin-top: -50px !important;
+    /* Visual offset */
   }
 
-  /* Line (edge) controls for dragging sides */
+  /* Expand rotation touch area even more */
+  .moveable-rotation::after {
+    top: -20px;
+    left: -20px;
+    right: -20px;
+    bottom: -20px;
+  }
+
   .moveable-line {
-    height: 24px !important;
+    height: 30px !important;
+    /* Thick lines for easier grabbing */
+    opacity: 0.1;
+    /* Invisible but grippable */
   }
 }
 

@@ -312,15 +312,15 @@ function App() {
                     />
                  </form>
 
-                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 pb-20 overflow-y-auto max-h-[70vh]">
+                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 auto-rows-max pb-32 overflow-y-auto h-[calc(100vh-180px)]">
                      {searchResults.map((img, idx) => (
-                         <div key={idx} onClick={() => addToBoard(img)} className="cursor-pointer group relative w-full aspect-square rounded-md overflow-hidden bg-zinc-900">
+                         <div key={idx} onClick={() => addToBoard(img)} className="cursor-pointer group relative w-full aspect-square rounded-xl overflow-hidden bg-zinc-900 z-0">
                              <img 
                                src={`/api/proxy-image?url=${encodeURIComponent(img.url)}`} 
-                               className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-all group-hover:scale-105" 
+                               className="w-full h-full object-cover opacity-90 md:opacity-80 md:group-hover:opacity-100 transition-all md:group-hover:scale-105" 
                                loading="lazy" 
                              />
-                             <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
+                             <div className="absolute inset-0 bg-black/50 opacity-0 md:group-hover:opacity-100 flex items-center justify-center transition-opacity">
                                  <Plus className="text-white w-8 h-8"/>
                              </div>
                          </div>
