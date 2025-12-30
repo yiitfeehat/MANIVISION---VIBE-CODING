@@ -20,8 +20,12 @@ const ImageCard = ({ image, activeFilter, onClick, onRemove, onUpdateImage, onBr
     // console.log("Processing BG Removal for:", image.title);
 
     try {
-      const proxyUrl = `/api/proxy-image?url=${encodeURIComponent(image.url)}`;
-      const response = await fetch(proxyUrl);
+      let fetchUrl = image.url;
+      if (!image.url.startsWith('data:') && !image.url.startsWith('blob:')) {
+        fetchUrl = `/api/proxy-image?url=${encodeURIComponent(image.url)}`;
+      }
+
+      const response = await fetch(fetchUrl);
       if (!response.ok) throw new Error(`Network error: ${response.status}`);
       const contentType = response.headers.get("content-type");
       if (!contentType || !contentType.startsWith("image/")) throw new Error(`Invalid format: ${contentType}`);
@@ -63,7 +67,7 @@ const ImageCard = ({ image, activeFilter, onClick, onRemove, onUpdateImage, onBr
         `}
       >
         <img
-          src={image.url.startsWith('blob:') ? image.url : `/api/proxy-image?url=${encodeURIComponent(image.url)}`}
+          src={image.url.startsWith('blob:') || image.url.startsWith('data:') ? image.url : `/api/proxy-image?url=${encodeURIComponent(image.url)}`}
           alt={image.title}
           loading="lazy"
           crossOrigin="anonymous" 

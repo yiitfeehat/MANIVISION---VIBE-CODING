@@ -3,11 +3,12 @@ import { defaultTheme } from './config/themeConfig';
 import { worldFilters, worldBackgrounds } from './config/worldStyles';
 import { fontOptions } from './config/fontStyles';
 import VisionBoard from './components/VisionBoard';
+import MobileInspector from './components/MobileInspector';
 import { removeBackground } from '@imgly/background-removal';
 import { compressAndResizeImage } from './utils/imageOptimizer';
 
 // Icons
-import { Search, Plus, Type, Image as ImageIcon, Sparkles, Box, Smartphone, Monitor, Square, Sun, Zap, Film, Cloud, Aperture, X, Palette, Wand2, Trash2, Download, Bold, Frame, Ban, CircleDot, Coffee, Wind, Scissors, Clapperboard, Triangle } from 'lucide-react';
+import { Search, Plus, Type, Image as ImageIcon, Sparkles, Box, Smartphone, Monitor, Square, Sun, Zap, Film, Cloud, Aperture, X, Palette, Wand2, Trash2, Download, Bold, Frame, Ban, CircleDot, Coffee, Wind, Scissors, Clapperboard, Triangle, Upload } from 'lucide-react';
 
 const aspectRatios = [
     { id: '16:9', label: '16:9', width: 16, height: 9, icon: <Monitor className="w-4 h-4" /> },
@@ -24,7 +25,13 @@ function App() {
   const [activeFilter, setActiveFilter] = useState(null); 
   const [activeBackground, setActiveBackground] = useState(worldBackgrounds[2]); 
   const [activeFont, setActiveFont] = useState(fontOptions[0]);
-  const [activeAspectRatio, setActiveAspectRatio] = useState(aspectRatios[0]);
+  const [activeAspectRatio, setActiveAspectRatio] = useState(() => {
+      // Responsive Default: 9:16 for Mobile, 16:9 for Desktop
+      if (typeof window !== 'undefined' && window.innerWidth < 768) {
+          return aspectRatios[1]; // 9:16
+      }
+      return aspectRatios[0]; // 16:9
+  });
   const [isPolaroid, setIsPolaroid] = useState(true); // Global Default
 
   const [selection, setSelection] = useState(null); // { type: 'text'|'image', items: [] }
@@ -188,10 +195,20 @@ function App() {
   };
 
   const updateLayout = (id, layoutChanges, type) => {
+    // MINIMUM SIZE GUARD
+    const SAFE_MIN_SIZE = 60;
+    const SAFE_MIN_FONT = 10;
+
+    const safeChanges = { ...layoutChanges };
+    
+    if (safeChanges.width && safeChanges.width < SAFE_MIN_SIZE) safeChanges.width = SAFE_MIN_SIZE;
+    if (safeChanges.height && typeof safeChanges.height === 'number' && safeChanges.height < SAFE_MIN_SIZE) safeChanges.height = SAFE_MIN_SIZE;
+    if (safeChanges.fontSize && safeChanges.fontSize < SAFE_MIN_FONT) safeChanges.fontSize = SAFE_MIN_FONT;
+
     if (type === 'text') {
-        setBoardTexts(prev => prev.map(t => t.id === id ? { ...t, ...layoutChanges } : t));
+        setBoardTexts(prev => prev.map(t => t.id === id ? { ...t, ...safeChanges } : t));
     } else {
-        setBoardImages(prev => prev.map(img => img.id === id ? { ...img, ...layoutChanges } : img));
+        setBoardImages(prev => prev.map(img => img.id === id ? { ...img, ...safeChanges } : img));
     }
   };
 
@@ -224,9 +241,13 @@ function App() {
 
       setIsProcessingAi(true);
       try {
-          // 1. Fetch the image through proxy to avoid CORS
-          const proxyUrl = `/api/proxy-image?url=${encodeURIComponent(item.url)}`;
-          const response = await fetch(proxyUrl);
+          // 1. Fetch the image (Proxy only for external URLs)
+          let fetchUrl = item.url;
+          if (!item.url.startsWith('data:') && !item.url.startsWith('blob:')) {
+              fetchUrl = `/api/proxy-image?url=${encodeURIComponent(item.url)}`;
+          }
+
+          const response = await fetch(fetchUrl);
           if (!response.ok) throw new Error('Failed to fetch image');
           const originalBlob = await response.blob();
 
@@ -244,6 +265,70 @@ function App() {
       } finally {
           setIsProcessingAi(false);
       }
+  };
+
+  // --- Local Image Upload Handler ---
+  const fileInputRef = useRef(null);
+
+  const handleImageUpload = (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = (event) => {
+          const dataUrl = event.target.result;
+          
+          // Create temp image to get dimensions
+          const tempImg = new Image();
+          tempImg.src = dataUrl;
+          tempImg.onload = () => {
+              // Calculate scaled dimensions (max 400px)
+              let width = tempImg.naturalWidth;
+              let height = tempImg.naturalHeight;
+              const maxDimension = 400;
+
+              if (width > maxDimension || height > maxDimension) {
+                  const ratio = width / height;
+                  if (width > height) {
+                      width = maxDimension;
+                      height = maxDimension / ratio;
+                  } else {
+                      height = maxDimension;
+                      width = maxDimension * ratio;
+                  }
+              }
+
+              // Add to state with Standard Data Structure
+              setBoardImages(prev => {
+                  const maxZ = Math.max(
+                      ...(prev.map(i => i.zIndex || 0)),
+                      ...(boardTexts.map(t => t.zIndex || 0)), 
+                      0
+                  );
+                  
+                  return [...prev, {
+                      id: window.crypto.randomUUID ? window.crypto.randomUUID() : `local-${Date.now()}`,
+                      type: 'polaroid', // Default as requested
+                      url: dataUrl,     // Use Data URL directly
+                      x: 100 + (Math.random() * 50),
+                      y: 100 + (Math.random() * 50),
+                      width: width,
+                      height: height,
+                      rotation: 0,
+                      zIndex: maxZ + 1,
+                      isFlipped: false,
+                      filter: 'none',
+                      aiProcessing: false
+                  }];
+              });
+              
+              // Close tools after upload
+              setShowTools(false);
+          };
+      };
+      reader.readAsDataURL(file);
+      // Reset input
+      e.target.value = '';
   };
 
   // --- Context Actions ---
@@ -349,10 +434,19 @@ function App() {
          />
       </main>
 
-      {/* CONTEXT TOOLBAR OR BOTTOM DOCK */}
+      {/* MOBILE INSPECTOR (Only visible < 768px) */}
+      <MobileInspector 
+         selection={selection}
+         onUpdate={updateLayout} // Layout updates use same signature
+         onRemove={(id) => removeFromBoard(id)}
+         onBringToFront={bringToFront}
+         onSendToBack={(id, type) => { /* To implement if needed, or mapped to something else */ }}
+      />
+
+      {/* DESKTOP CONTEXT TOOLBAR (Hidden on Mobile) */}
       {selection && !isSaving ? (
           // --- CONTEXT AWARE TOOLBAR ---
-          <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[1100] animate-in slide-in-from-bottom-5 fade-in duration-300">
+          <div className="hidden md:block fixed bottom-6 left-1/2 -translate-x-1/2 z-[1100] animate-in slide-in-from-bottom-5 fade-in duration-300">
                <div className="flex items-center gap-2 bg-zinc-900/90 backdrop-blur-2xl border border-white/10 rounded-full p-2 px-4 shadow-2xl">
                    
                    {/* TEXT TOOLS */}
@@ -565,13 +659,23 @@ function App() {
                            <div className="w-14 h-14 bg-white/5 rounded-2xl flex items-center justify-center border border-white/10 group-hover:bg-white group-hover:text-black transition-colors"><ImageIcon className="w-6 h-6"/></div>
                            <span className="text-[10px] uppercase font-bold tracking-wider">Image</span>
                        </button>
-                       <button onClick={() => { addTextToBoard(); setShowTools(false); }} className="flex flex-col items-center gap-2 text-zinc-400 hover:text-white group">
-                           <div className="w-14 h-14 bg-white/5 rounded-2xl flex items-center justify-center border border-white/10 group-hover:bg-white group-hover:text-black transition-colors"><Type className="w-6 h-6"/></div>
-                           <span className="text-[10px] uppercase font-bold tracking-wider">Text</span>
-                       </button>
-                        <button onClick={() => { setIsPolaroid(!isPolaroid); }} className="flex flex-col items-center gap-2 text-zinc-400 hover:text-white group">
-                           <div className="w-14 h-14 bg-white/5 rounded-2xl flex items-center justify-center border border-white/10 group-hover:bg-white group-hover:text-black transition-colors"><Palette className="w-6 h-6"/></div>
-                           <span className="text-[10px] uppercase font-bold tracking-wider">{isPolaroid ? 'Polaroid' : 'Raw'}</span>
+                        <button onClick={() => { addTextToBoard(); setShowTools(false); }} className="flex flex-col items-center gap-2 text-zinc-400 hover:text-white group">
+                            <div className="w-14 h-14 bg-white/5 rounded-2xl flex items-center justify-center border border-white/10 group-hover:bg-white group-hover:text-black transition-colors"><Type className="w-6 h-6"/></div>
+                            <span className="text-[10px] uppercase font-bold tracking-wider">Text</span>
+                        </button>
+                        
+                        {/* Hidden File Input */}
+                        <input 
+                            type="file" 
+                            ref={fileInputRef} 
+                            style={{ display: 'none' }} 
+                            accept="image/*" 
+                            onChange={handleImageUpload} 
+                        />
+                        
+                        <button onClick={() => fileInputRef.current?.click()} className="flex flex-col items-center gap-2 text-zinc-400 hover:text-white group">
+                           <div className="w-14 h-14 bg-white/5 rounded-2xl flex items-center justify-center border border-white/10 group-hover:bg-white group-hover:text-black transition-colors"><Upload className="w-6 h-6"/></div>
+                           <span className="text-[10px] uppercase font-bold tracking-wider">Upload</span>
                        </button>
                    </div>
                )}

@@ -67,55 +67,23 @@ body {
 }
 
 /* Mobile: Extra large touch targets (44px minimum per Apple HIG) */
-/* Mobile: Extra large touch targets (Fat Finger Friendly) */
+/* Mobile: Hide Handles, Show Inspector instead */
 @media (max-width: 768px) {
   .moveable-control {
-    /* Visual Size: Readable but not huge */
-    width: 20px !important;
-    height: 20px !important;
-    margin-left: -10px !important;
-    /* Center 20px */
-    margin-top: -10px !important;
-    background: white !important;
-    border: 2px solid #333 !important;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3) !important;
-    z-index: 50 !important;
-  }
-
-  /* The Invisible Touch Expansion (44px+) */
-  .moveable-control::after {
-    content: '';
-    position: absolute;
-    top: -16px;
-    left: -16px;
-    right: -16px;
-    bottom: -16px;
-    background: transparent;
-    z-index: 49;
-  }
-
-  /* Rotation handle adjustments */
-  .moveable-rotation {
-    width: 24px !important;
-    height: 24px !important;
-    margin-left: -12px !important;
-    margin-top: -50px !important;
-    /* Visual offset */
-  }
-
-  /* Expand rotation touch area even more */
-  .moveable-rotation::after {
-    top: -20px;
-    left: -20px;
-    right: -20px;
-    bottom: -20px;
+    display: none !important;
+    /* Hide dots */
   }
 
   .moveable-line {
-    height: 30px !important;
-    /* Thick lines for easier grabbing */
-    opacity: 0.1;
-    /* Invisible but grippable */
+    background: #3b82f6 !important;
+    /* Blue Border */
+    height: 2px !important;
+    opacity: 1 !important;
+  }
+
+  /* Hide rotation handle too */
+  .moveable-rotation {
+    display: none !important;
   }
 }
 
@@ -124,7 +92,23 @@ body {
   -webkit-user-select: none;
   user-select: none;
   -webkit-touch-callout: none;
+  position: absolute;
+  /* Enforcement */
 }
+
+/* Easy Tap: Expand Hit Box by 20px */
+.target-common::before {
+  content: '';
+  position: absolute;
+  top: -20px;
+  left: -20px;
+  right: -20px;
+  bottom: -20px;
+  z-index: -1;
+  /* Debug: background: rgba(255, 0, 0, 0.1); */
+}
+
+/* Ensure the click bubbles up */
 
 /* Fix for Selecto Offset: Force it to use Window Coordinates visually */
 .selecto-selection-box {
