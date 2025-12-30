@@ -293,18 +293,7 @@ const VisionBoard = forwardRef(({
         ))}
 
         {/* SELECTO (Drag Select) */}
-        <Selecto
-            dragContainer={boardRef.current}
-            selectableTargets={[".target-common"]}
-            hitRate={0}
-            selectByClick={true}
-            selectFromInside={false}
-            onSelect={e => {
-                setSelectedTargets(e.selected);
-            }}
-            // Adjust coordinates for scaled container
-            ratio={1 / scale}
-        />
+
 
         {/* MOVEABLE (Handles) */}
         <Moveable
@@ -398,6 +387,36 @@ const VisionBoard = forwardRef(({
         />
 
       </div>
+
+      {/* SELECTO (Drag Select) - Moved Outside Scaled Board for Layout Stability */}
+      <Selecto
+          dragContainer={window}
+          selectableTargets={[".target-common"]}
+          hitRate={0}
+          selectByClick={true}
+          selectFromInside={false}
+          toggleContinueSelect={["shift"]}
+          scrollOptions={{
+              container: containerRef.current,
+              threshold: 30,
+              throttleTime: 30
+          }}
+          onSelect={e => {
+              setSelectedTargets(e.selected);
+          }}
+          dragCondition={(e) => {
+              const target = e.inputEvent.target;
+              if (
+                  target.tagName === "BUTTON" || 
+                  target.tagName === "INPUT" || 
+                  target.tagName === "SELECT" || 
+                  target.tagName === "OPTION" || 
+                  target.closest("button") ||
+                  target.closest(".moveable-control-box")
+              ) return false;
+              return true;
+          }}
+      />
     </div>
   );
 });

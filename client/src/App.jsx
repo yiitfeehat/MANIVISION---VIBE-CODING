@@ -7,7 +7,7 @@ import { removeBackground } from '@imgly/background-removal';
 import { compressAndResizeImage } from './utils/imageOptimizer';
 
 // Icons
-import { Search, Plus, Type, Image as ImageIcon, Sparkles, Box, Smartphone, Monitor, Square, Sun, Zap, Film, Cloud, Aperture, X, Palette, Wand2, Trash2, Download, Bold, Frame } from 'lucide-react';
+import { Search, Plus, Type, Image as ImageIcon, Sparkles, Box, Smartphone, Monitor, Square, Sun, Zap, Film, Cloud, Aperture, X, Palette, Wand2, Trash2, Download, Bold, Frame, Ban, CircleDot, Coffee, Wind, Scissors, Clapperboard, Triangle } from 'lucide-react';
 
 const aspectRatios = [
     { id: '16:9', label: '16:9', width: 16, height: 9, icon: <Monitor className="w-4 h-4" /> },
@@ -312,9 +312,9 @@ function App() {
                     />
                  </form>
 
-                 <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4 pb-20 overflow-y-auto max-h-[70vh]">
+                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 pb-20 overflow-y-auto max-h-[70vh]">
                      {searchResults.map((img, idx) => (
-                         <div key={idx} onClick={() => addToBoard(img)} className="cursor-pointer group relative aspect-[3/4] rounded-lg overflow-hidden bg-zinc-900">
+                         <div key={idx} onClick={() => addToBoard(img)} className="cursor-pointer group relative w-full aspect-square rounded-md overflow-hidden bg-zinc-900">
                              <img 
                                src={`/api/proxy-image?url=${encodeURIComponent(img.url)}`} 
                                className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-all group-hover:scale-105" 
@@ -519,22 +519,32 @@ function App() {
                        {/* Filters */}
                        <div>
                            <div className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-3">Filters</div>
-                           <div className="grid grid-cols-5 gap-2">
-                               {worldFilters.map((f, i) => (
-                                   <div key={f.id} onClick={() => toggleFilter(f)} className={`aspect-square rounded-xl overflow-hidden border-2 cursor-pointer flex items-center justify-center relative group transition-all ${activeFilter?.id === f.id ? 'border-white scale-105' : 'border-white/5 opacity-60 hover:opacity-100 hover:border-white/20'}`}>
-                                       <div className="absolute inset-0 bg-zinc-800" style={f.style}></div>
-                                       <div className="relative z-10 text-white/80 drop-shadow-md">
-                                           {f.id === 'noir' && <Film className="w-5 h-5"/>}
-                                           {f.id === 'analog' && <Aperture className="w-5 h-5"/>}
-                                           {f.id === 'cyber' && <Zap className="w-5 h-5"/>}
-                                           {f.id === 'sepia' && <Sun className="w-5 h-5"/>}
-                                           {f.id === 'vogue' && <Bold className="w-5 h-5"/>}
-                                           {/* Defaults for others */}
-                                           {['noir','analog','cyber','sepia','vogue'].indexOf(f.id) === -1 && <Cloud className="w-5 h-5"/>}
-                                       </div>
-                                   </div>
-                               ))}
-                           </div>
+                            <div className="grid grid-cols-5 gap-2">
+                                {worldFilters.map((f, i) => {
+                                    const IconComponent = {
+                                        'Ban': Ban,
+                                        'CircleDot': CircleDot,
+                                        'Film': Film,
+                                        'Zap': Zap,
+                                        'Coffee': Coffee,
+                                        'Sparkles': Sparkles,
+                                        'Wind': Wind,
+                                        'Scissors': Scissors,
+                                        'Clapperboard': Clapperboard,
+                                        'Triangle': Triangle,
+                                        'Cloud': Cloud
+                                    }[f.icon] || Cloud;
+
+                                    return (
+                                        <div key={f.id} onClick={() => toggleFilter(f)} className={`aspect-square rounded-xl overflow-hidden border-2 cursor-pointer flex items-center justify-center relative group transition-all ${activeFilter?.id === f.id ? 'border-white scale-105' : 'border-white/5 opacity-60 hover:opacity-100 hover:border-white/20'}`}>
+                                            <div className="absolute inset-0 bg-zinc-800" style={f.style}></div>
+                                            <div className="relative z-10 text-white/80 drop-shadow-md">
+                                                <IconComponent className="w-5 h-5"/>
+                                            </div>
+                                        </div>
+                                    );
+                                })}
+                            </div>
                        </div>
                        
                        {/* Canvas BG */}

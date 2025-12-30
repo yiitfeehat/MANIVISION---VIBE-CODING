@@ -106,3 +106,9 @@ body {
   user-select: none;
   -webkit-touch-callout: none;
 }
+
+/* Fix for Selecto Offset: Force it to use Window Coordinates visually */
+.selecto-selection-box {
+  position: fixed !important;
+  z-index: 9999 !important;
+}
