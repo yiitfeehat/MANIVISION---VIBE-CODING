@@ -183,9 +183,6 @@ const VisionBoard = forwardRef(({
       } finally {
         setSelectedTargets(currentSelection);
       }
-      } finally {
-        setSelectedTargets(currentSelection);
-      }
     },
     startEditing: (id) => {
         setEditingId(id);
@@ -298,7 +295,6 @@ const VisionBoard = forwardRef(({
                     onBringToFront(text.id, 'text');
                 }}
                 data-id={text.id}
-                data-type="text"
                 data-type="text"
             >
                 <TextCard 
