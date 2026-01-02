@@ -27,7 +27,15 @@ const TextCard = ({ textNode, onUpdateText, style, forceEditing, onEditEnd }) =>
     setIsEditing(false);
     if (onEditEnd) onEditEnd(); // Notify parent
     if (onUpdateText) {
+       // innerText kullanarak metni alıyoruz
        onUpdateText(textNode.id, { content: e.target.innerText });
+    }
+  };
+
+  const handleKeyDown = (e) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        contentRef.current.blur();
     }
   };
 

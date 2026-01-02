@@ -188,7 +188,7 @@ const VisionBoard = forwardRef(({
         setEditingId(id);
     }
   }));
- 
+
   // State for controlled text editing
   const [editingId, setEditingId] = useState(null);
 
