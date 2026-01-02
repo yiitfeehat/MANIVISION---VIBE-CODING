@@ -71,6 +71,7 @@ const ImageCard = ({ image, activeFilter, onClick, onRemove, onUpdateImage, onBr
           alt={image.title}
           loading="lazy"
           crossOrigin="anonymous" 
+          referrerPolicy="no-referrer"
           // APPLY THE WORLD FILTER HERE
           style={activeFilter?.style} 
           className={`w-full h-full ${isPolaroid ? 'object-cover' : 'object-contain'} ${isProcessing ? 'opacity-50 blur-sm' : ''} transition-all duration-500`}

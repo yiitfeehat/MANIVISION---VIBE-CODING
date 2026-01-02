@@ -113,15 +113,22 @@ const VisionBoard = forwardRef(({
           backgroundColor: computedStyle.backgroundColor,
           backgroundImage: computedStyle.backgroundImage,
 
-          // GLOBAL CACHE BUSTING:
-          // We manually modify the CLONED node's image sources to force a fresh fetch.
-          // This avoids the "Event" crash from the library's internal cacheBust, but solves the "Ghost Image" bug.
+          // GLOBAL CACHE BUSTING & LAYOUT FIX:
           onClone: (clonedNode) => {
+             // 1. Reset Transform Scale (User Request)
+             // This ensures we capture the full 1080p/1920p resolution, not the visually scaled-down version.
+             if (clonedNode && clonedNode.style) {
+                 clonedNode.style.transform = 'none';
+                 clonedNode.style.width = `${boardDimensions.width}px`;
+                 clonedNode.style.height = `${boardDimensions.height}px`;
+             }
+
+             // 2. Force Cache Busting for Images
              const images = clonedNode.querySelectorAll('img');
              images.forEach(img => {
                  if (img.src && !img.src.startsWith('data:')) {
-                     // Add a timestamp to force the browser to treat this as a new request
                      const separator = img.src.includes('?') ? '&' : '?';
+                     // Force browser to fetch fresh image data
                      img.src = `${img.src}${separator}export_t=${Date.now()}`;
                  }
              });
@@ -131,7 +138,7 @@ const VisionBoard = forwardRef(({
           x: 0,
           y: 0,
           style: {
-             transform: 'none', 
+             transform: 'none', // Redundant but safe
              transformOrigin: 'top left',
              margin: 0,
              padding: 0,
