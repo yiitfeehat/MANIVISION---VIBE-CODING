@@ -1,13 +1,20 @@
 import React, { useState, useEffect, useRef } from 'react';
 
-const TextCard = ({ textNode, onUpdateText, style }) => {
+const TextCard = ({ textNode, onUpdateText, style, forceEditing, onEditEnd }) => {
   const contentRef = useRef(null);
   const [isEditing, setIsEditing] = useState(false);
+
+  // Sync with external forceEditing prop
+  useEffect(() => {
+    if (forceEditing) {
+        setIsEditing(true);
+    }
+  }, [forceEditing]);
 
   useEffect(() => {
     if (isEditing && contentRef.current) {
         contentRef.current.focus();
-        // Tüm metni seç
+        // Select all text
         const range = document.createRange();
         range.selectNodeContents(contentRef.current);
         const sel = window.getSelection();
@@ -18,16 +25,9 @@ const TextCard = ({ textNode, onUpdateText, style }) => {
 
   const handleBlur = (e) => {
     setIsEditing(false);
+    if (onEditEnd) onEditEnd(); // Notify parent
     if (onUpdateText) {
-       // innerText kullanarak metni alıyoruz
        onUpdateText(textNode.id, { content: e.target.innerText });
-    }
-  };
-
-  const handleKeyDown = (e) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-        e.preventDefault();
-        contentRef.current.blur();
     }
   };
 

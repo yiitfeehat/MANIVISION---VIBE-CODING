@@ -440,6 +440,7 @@ function App() {
          onUpdate={updateLayout} // Layout updates use same signature
          onRemove={(id) => removeFromBoard(id)}
          onBringToFront={bringToFront}
+         onEdit={(id) => visionBoardRef.current?.startEditing(id)} // Trigger text edit
          onSendToBack={(id, type) => { /* To implement if needed, or mapped to something else */ }}
       />
 

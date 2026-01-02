@@ -183,8 +183,17 @@ const VisionBoard = forwardRef(({
       } finally {
         setSelectedTargets(currentSelection);
       }
+      } finally {
+        setSelectedTargets(currentSelection);
+      }
+    },
+    startEditing: (id) => {
+        setEditingId(id);
     }
   }));
+
+  // State for controlled text editing
+  const [editingId, setEditingId] = useState(null);
 
   // Sync selection with parent
   useEffect(() => {
@@ -290,11 +299,14 @@ const VisionBoard = forwardRef(({
                 }}
                 data-id={text.id}
                 data-type="text"
+                data-type="text"
             >
                 <TextCard 
                     textNode={text}
                     onUpdateText={onUpdateText}
                     style={{ width: '100%', height: '100%' }}
+                    forceEditing={editingId === text.id}
+                    onEditEnd={() => setEditingId(null)}
                 />
             </div>
         ))}

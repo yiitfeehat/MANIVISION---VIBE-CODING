@@ -1,5 +1,5 @@
 import React from 'react';
-import { Trash2, Layers, Move, RotateCw, Scaling } from 'lucide-react';
+import { Trash2, Layers, Move, RotateCw, Scaling, Pencil } from 'lucide-react';
 
 const MobileInspector = ({ selection, onUpdate, onRemove, onBringToFront, onSendToBack }) => {
   if (!selection || !selection.items || selection.items.length === 0) return null;
@@ -36,12 +36,24 @@ const MobileInspector = ({ selection, onUpdate, onRemove, onBringToFront, onSend
              {isText ? <TypeIcon className="w-3 h-3" /> : <ImageIcon className="w-3 h-3" />}
              <span>{isText ? 'Edit Text' : 'Edit Image'}</span>
           </div>
-          <button 
-             onClick={() => onRemove(item.id)}
-             className="p-2 bg-red-500/10 text-red-500 rounded-full hover:bg-red-500 hover:text-white transition-colors"
-          >
-             <Trash2 className="w-4 h-4" />
-          </button>
+          
+          <div className="flex gap-2">
+            {isText && (
+                <button 
+                    onClick={() => onEdit(item.id)}
+                    className="flex items-center gap-1 px-3 py-1.5 bg-blue-500/20 text-blue-400 rounded-full hover:bg-blue-500 hover:text-white transition-colors text-[10px] font-bold uppercase tracking-wider"
+                >
+                    <Pencil className="w-3 h-3" /> Edit
+                </button>
+            )}
+
+            <button 
+                onClick={() => onRemove(item.id)}
+                className="p-2 bg-red-500/10 text-red-500 rounded-full hover:bg-red-500 hover:text-white transition-colors"
+            >
+                <Trash2 className="w-4 h-4" />
+            </button>
+          </div>
       </div>
 
       <div className="grid grid-cols-[1fr_auto] gap-4 items-center mb-4">
